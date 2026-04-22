@@ -1,24 +1,28 @@
 pipeline {
     agent any
 
-    environment {
-        PATH = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-    }
-
     stages {
-        stage('Build Docker Image') {
+        stage('Clone Code') {
             steps {
-                sh 'docker build -t devops-demo:v1 .'
+                git 'https://github.com/Varunsandesh19/Devopss.git'
             }
         }
 
-        stage('Deploy Container') {
+        stage('Build Docker Image') {
             steps {
-                sh '''
-                docker stop $(docker ps -q) || true
-                docker rm $(docker ps -aq) || true
-                docker run -d -p 80:80 devops-demo:v1
-                '''
+                sh 'docker build -t myapp .'
+            }
+        }
+
+        stage('Stop Old Container') {
+            steps {
+                sh 'docker rm -f mycontainer || true'
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                sh 'docker run -d -p 80:80 --name mycontainer myapp'
             }
         }
     }
