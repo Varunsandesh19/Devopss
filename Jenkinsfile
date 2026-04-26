@@ -1,44 +1,29 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "myapp"
-        CONTAINER_NAME = "myapp-container"
-    }
-
     stages {
 
-        stage('Checkout Code') {
+        stage('Clone Code') {
             steps {
-                // Jenkins already knows your repo from SCM config
-                checkout scm
+                git 'https://github.com/Varunsandesh19/Devopss.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh "docker build -t $IMAGE_NAME ."
-                }
+                sh 'docker build -t devopss-app .'
             }
         }
 
-        stage('Stop Old Container') {
+        stage('Remove Old Container') {
             steps {
-                script {
-                    sh """
-                    docker stop $CONTAINER_NAME || true
-                    docker rm $CONTAINER_NAME || true
-                    """
-                }
+                sh 'docker rm -f devopss-container || true'
             }
         }
 
         stage('Run Container') {
             steps {
-                script {
-                    sh "docker run -d -p 80:80 --name $CONTAINER_NAME $IMAGE_NAME"
-                }
+                sh 'docker run -d -p 8081:80 --name devopss-container devopss-app'
             }
         }
     }
